@@ -1,0 +1,175 @@
+// @ts-ignore
+import {useIntl} from "@umijs/max";
+
+export enum AdminAccess {
+  LOGIN = 'LOGIN',
+  SUB_ADMIN = 'SUB_ADMIN',
+
+  BANNER = 'BANNER',
+  BANNER_LIST = 'BANNER_LIST',
+  BANNER_LIST_CREATE = 'BANNER_LIST_CREATE',
+  BANNER_LIST_UPDATE = 'BANNER_LIST_UPDATE',
+  BANNER_LIST_DELETE = 'BANNER_LIST_DELETE',
+
+  PRODUCT = 'PRODUCT',
+  PRODUCT_LIST = 'PRODUCT_LIST',
+  PRODUCT_LIST_CREATE = 'PRODUCT_LIST_CREATE',
+  PRODUCT_LIST_UPDATE = 'PRODUCT_LIST_UPDATE',
+  PRODUCT_LIST_DELETE = 'PRODUCT_LIST_DELETE',
+  PRODUCT_LIST_VIEW = 'PRODUCT_LIST_VIEW',
+  PRODUCT_LIST_ORDER = 'PRODUCT_LIST_ORDER',
+
+  ORDER = 'ORDER',
+  ORDER_LIST = 'ORDER_LIST',
+  ORDER_LIST_VIEW = 'ORDER_LIST_VIEW',
+  ORDER_LIST_AUDIT = 'ORDER_LIST_AUDIT',
+  ORDER_LIST_SHIP = 'ORDER_LIST_SHIP',
+  ORDER_LIST_CANCEL = 'ORDER_LIST_CANCEL',
+  ORDER_LIST_PAY = 'ORDER_LIST_PAY',
+
+  USER = 'USER',
+  USER_LIST = 'USER_LIST',
+  USER_LIST_CREATE = 'USER_LIST_CREATE',
+  USER_LIST_UPDATE = 'USER_LIST_UPDATE',
+  USER_LIST_DELETE = 'USER_LIST_DELETE',
+
+  VARIETY = 'VARIETY',
+  VARIETY_LIST = 'VARIETY_LIST',
+  VARIETY_LIST_CREATE = 'VARIETY_LIST_CREATE',
+  VARIETY_LIST_UPDATE = 'VARIETY_LIST_UPDATE',
+  VARIETY_LIST_DELETE = 'VARIETY_LIST_DELETE',
+
+  ADMIN = 'ADMIN',
+  ADMIN_ROLE = 'ADMIN_ROLE',
+  ADMIN_ROLE_CREATE = 'ADMIN_ROLE_CREATE',
+  ADMIN_ROLE_UPDATE = 'ADMIN_ROLE_UPDATE',
+  ADMIN_ROLE_DELETE = 'ADMIN_ROLE_DELETE',
+  ADMIN_ROLE_ASSIGN_PERMISSION = 'ADMIN_ROLE_ASSIGN_PERMISSION',
+  ADMIN_PERMISSION_SYNC = 'ADMIN_PERMISSION_SYNC',
+
+  FINANCE = 'FINANCE',
+  FINANCE_INCOME = 'FINANCE_INCOME',
+  FINANCE_INCOME_LIST = 'FINANCE_INCOME_LIST',
+  FINANCE_INCOME_CREATE = 'FINANCE_INCOME_CREATE',
+  FINANCE_INCOME_UPDATE = 'FINANCE_INCOME_UPDATE',
+  FINANCE_INCOME_DELETE = 'FINANCE_INCOME_DELETE',
+  FINANCE_INCOME_AUDIT = 'FINANCE_INCOME_AUDIT',
+
+  SHIPPING = 'SHIPPING',
+  SHIPPING_LIST = 'SHIPPING_LIST',
+  SHIPPING_LIST_VIEW = 'SHIPPING_LIST_VIEW',
+  SHIPPING_LIST_CREATE = 'SHIPPING_LIST_CREATE',
+  SHIPPING_LIST_UPDATE = 'SHIPPING_LIST_UPDATE',
+  SHIPPING_LIST_STATUS_UPDATE = 'SHIPPING_LIST_STATUS_UPDATE',
+  SHIPPING_LIST_DELETE = 'SHIPPING_LIST_DELETE',
+
+  FOSTER_CARE = 'FOSTER_CARE',
+  FOSTER_CARE_LIST = 'FOSTER_CARE_LIST',
+  FOSTER_CARE_LIST_VIEW = 'FOSTER_CARE_LIST_VIEW',
+  FOSTER_CARE_LIST_CREATE = 'FOSTER_CARE_LIST_CREATE',
+  FOSTER_CARE_LIST_UPDATE = 'FOSTER_CARE_LIST_UPDATE',
+  FOSTER_CARE_LIST_STATUS_UPDATE = 'FOSTER_CARE_LIST_STATUS_UPDATE',
+  FOSTER_CARE_LIST_DELETE = 'FOSTER_CARE_LIST_DELETE',
+}
+
+export const ADMIN_ACCESS_ALL: AdminAccess[] = Object.keys(AdminAccess)
+  .filter((key) => !['SUB_ADMIN', 'LOGIN'].includes(key))
+  .map((key) => (AdminAccess as any)[key]
+  );
+
+
+export const AdminRole = {
+  BANNER: {
+    BANNER_LIST: [
+      AdminAccess.BANNER_LIST_CREATE,
+      AdminAccess.BANNER_LIST_UPDATE,
+      AdminAccess.BANNER_LIST_DELETE,
+    ],
+  },
+  PRODUCT: {
+    PRODUCT_LIST: [
+      AdminAccess.PRODUCT_LIST_VIEW,
+      AdminAccess.PRODUCT_LIST_CREATE,
+      AdminAccess.PRODUCT_LIST_UPDATE,
+      AdminAccess.PRODUCT_LIST_DELETE,
+      AdminAccess.PRODUCT_LIST_ORDER,
+    ],
+  },
+  ORDER: {
+    ORDER_LIST: [
+      AdminAccess.ORDER_LIST_VIEW,
+      AdminAccess.ORDER_LIST_AUDIT,
+      AdminAccess.ORDER_LIST_SHIP,
+      AdminAccess.ORDER_LIST_CANCEL,
+      AdminAccess.ORDER_LIST_PAY,
+    ],
+  },
+  USER: {
+    USER_LIST: [
+      AdminAccess.USER_LIST_CREATE,
+      AdminAccess.USER_LIST_UPDATE,
+      AdminAccess.USER_LIST_DELETE,
+    ],
+  },
+  VARIETY: {
+    VARIETY_LIST: [
+      AdminAccess.VARIETY_LIST_CREATE,
+      AdminAccess.VARIETY_LIST_UPDATE,
+      AdminAccess.VARIETY_LIST_DELETE,
+    ],
+  },
+  ADMIN: {
+    ADMIN_ROLE: [
+      AdminAccess.ADMIN_ROLE_CREATE,
+      AdminAccess.ADMIN_ROLE_UPDATE,
+      AdminAccess.ADMIN_ROLE_DELETE,
+      AdminAccess.ADMIN_ROLE_ASSIGN_PERMISSION,
+    ],
+    ADMIN_PERMISSION: [
+      AdminAccess.ADMIN_PERMISSION_SYNC,
+    ],
+  },
+  FINANCE: {
+    FINANCE_INCOME: [
+      AdminAccess.FINANCE_INCOME_LIST,
+      AdminAccess.FINANCE_INCOME_CREATE,
+      AdminAccess.FINANCE_INCOME_UPDATE,
+      AdminAccess.FINANCE_INCOME_DELETE,
+      AdminAccess.FINANCE_INCOME_AUDIT,
+    ],
+  },
+  SHIPPING: {
+    SHIPPING_LIST: [
+      AdminAccess.SHIPPING_LIST_VIEW,
+      AdminAccess.SHIPPING_LIST_CREATE,
+      AdminAccess.SHIPPING_LIST_UPDATE,
+      AdminAccess.SHIPPING_LIST_STATUS_UPDATE,
+      AdminAccess.SHIPPING_LIST_DELETE,
+    ],
+  },
+  FOSTER_CARE: {
+    FOSTER_CARE_LIST: [
+      AdminAccess.FOSTER_CARE_LIST_VIEW,
+      AdminAccess.FOSTER_CARE_LIST_CREATE,
+      AdminAccess.FOSTER_CARE_LIST_UPDATE,
+      AdminAccess.FOSTER_CARE_LIST_STATUS_UPDATE,
+      AdminAccess.FOSTER_CARE_LIST_DELETE,
+    ],
+  },
+}
+
+// @ts-ignore
+export const convertToTree = (node) => {
+  if (typeof node === 'object' && !Array.isArray(node)) {
+    const children: any = Object.keys(node).map((key) => ({
+      key,
+      title: useIntl().formatMessage({id: `authority.${key}`}),
+      children: convertToTree(node[key]),
+    }));
+
+    return children;
+  } else {
+    return node.map((item: any) => ({key: item, title: useIntl().formatMessage({id: `authority.${item}`})}));
+  }
+};
+

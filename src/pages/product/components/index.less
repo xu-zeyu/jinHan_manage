@@ -1,0 +1,320 @@
+.productFormWrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.productForm {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  :global {
+    .ant-tabs {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+
+      .ant-tabs-nav {
+        flex-shrink: 0;
+        margin-bottom: 0;
+        background: #fff;
+        border-bottom: 1px solid #f0f0f0;
+        padding: 0 20px;
+      }
+
+      .ant-tabs-content {
+        flex: 1;
+        overflow: auto;
+        padding: 20px;
+        background: #fafafa;
+      }
+
+      .ant-tabs-tab {
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #595959;
+        transition: all 0.3s;
+
+        &:hover {
+          color: #1890ff;
+        }
+
+        &.ant-tabs-tab-active {
+          color: #1890ff;
+          border-bottom: 2px solid #1890ff;
+        }
+      }
+
+      .ant-tabs-ink-bar {
+        background: #1890ff;
+        height: 2px;
+      }
+    }
+
+    .tabContent {
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+      min-height: fit-content;
+    }
+
+    .ant-form-item {
+      margin-bottom: 12px;
+
+      .ant-form-item-label > label {
+        height: 28px;
+        line-height: 28px;
+        font-size: 13px;
+        color: #595959;
+        font-weight: 500;
+      }
+
+      .ant-input,
+      .ant-input-number,
+      .ant-select-selector {
+        font-size: 13px;
+      }
+
+      .ant-input,
+      .ant-input-number,
+      .ant-select-selector {
+        height: 34px;
+        line-height: 32px;
+        border-radius: 6px;
+        border-color: #d9d9d9;
+        transition: all 0.2s;
+
+        &:hover {
+          border-color: #40a9ff;
+        }
+
+        &:focus,
+        &.ant-input-focused,
+        &.ant-select-focused .ant-select-selector {
+          border-color: #40a9ff;
+          box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+        }
+      }
+
+      .ant-input-number {
+        width: 100%;
+
+        .ant-input-number-input {
+          height: 32px;
+          line-height: 32px;
+        }
+
+        .ant-input-number-handler-wrap {
+          opacity: 0;
+          transition: opacity 0.2s;
+
+          .ant-input-number-handler {
+            border-left: 1px solid #d9d9d9;
+          }
+        }
+
+        &:hover .ant-input-number-handler-wrap {
+          opacity: 1;
+        }
+      }
+    }
+
+    .ant-row {
+      margin-bottom: -12px;
+    }
+
+    .ant-btn {
+      height: 34px;
+      padding: 0 16px;
+      font-size: 13px;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: all 0.2s;
+
+      &.ant-btn-sm {
+        height: 28px;
+        padding: 0 10px;
+        font-size: 12px;
+      }
+
+      &.ant-btn-dashed {
+        border-style: dashed;
+        background: #fafafa;
+        border-color: #d9d9d9;
+        height: 40px;
+        font-size: 14px;
+        border-radius: 8px;
+        margin-top: 16px;
+
+        &:hover {
+          border-color: #40a9ff;
+          color: #40a9ff;
+          background: #f0f9ff;
+          transform: translateY(-1px);
+          box-shadow: 0 2px 4px rgba(24, 144, 255, 0.1);
+        }
+
+        &:active {
+          transform: translateY(0);
+        }
+      }
+    }
+
+    .ant-switch {
+      margin-bottom: 12px;
+    }
+  }
+}
+
+// 富文本编辑器样式
+.richTextEditor {
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s;
+
+  &:hover,
+  &:focus-within {
+    border-color: #40a9ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+  }
+
+  .editorToolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #fafafa;
+    border-bottom: 1px solid #e8e8e8;
+
+    .toolbarLine {
+      flex: 1;
+      height: 1px;
+      background: #e8e8e8;
+    }
+  }
+
+  .editorContent {
+    min-height: 300px;
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 16px;
+
+    &.visualMode {
+      outline: none;
+      line-height: 1.6;
+      font-size: 14px;
+
+      &:empty::before {
+        content: attr(placeholder);
+        color: #bfbfbf;
+        font-style: italic;
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+      }
+
+      p {
+        margin: 8px 0;
+      }
+
+      ul, ol {
+        padding-left: 24px;
+      }
+    }
+
+    &.sourceMode {
+      textarea {
+        border: none !important;
+        box-shadow: none !important;
+        resize: none;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+    }
+  }
+}
+
+// 上传组件样式优化
+:global {
+  .ant-upload-list {
+    .ant-upload-list-item {
+      border-radius: 6px;
+      transition: all 0.2s;
+
+      &:hover {
+        .ant-upload-list-item-actions {
+          opacity: 1;
+        }
+      }
+
+      .ant-upload-list-item-actions {
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+    }
+
+    .ant-upload-list-picture-card-container {
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+
+    .ant-upload-select-picture-card {
+      border-radius: 6px;
+      border: 2px dashed #d9d9d9;
+      transition: all 0.2s;
+
+      &:hover {
+        border-color: #40a9ff;
+        color: #40a9ff;
+      }
+
+      .ant-upload {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
+    }
+  }
+}
+
+// 图片预览样式
+.imagePreview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .productForm {
+    :global {
+      .ant-tabs-nav {
+        padding: 0 12px;
+      }
+
+      .ant-tabs-content {
+        padding: 12px;
+      }
+
+      .tabContent {
+        padding: 12px;
+      }
+
+      .ant-form-item {
+        margin-bottom: 10px;
+      }
+    }
+  }
+}
