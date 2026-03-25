@@ -266,7 +266,7 @@ export default {
   'authority.ADMIN_PERMISSION_SYNC': '同步权限',
   'authority.PRODUCT_LIST_VIEW': '查看商品',
   'authority.PRODUCT_LIST_ORDER': '商品下单',
-  
+
   // 财务管理权限
   'authority.FINANCE': '财务管理',
   'authority.FINANCE_DASHBOARD': '财务概览',
@@ -284,7 +284,7 @@ export default {
   'authority.FINANCE_REPORT': '财务报表',
   'authority.FINANCE_REPORT_VIEW': '查看报表',
   'authority.FINANCE_REPORT_EXPORT': '导出报表',
-
+  'authority.FINANCE_INCOME_AUDIT': '支出审核',
   // 发货管理权限
   'authority.SHIPPING': '发货管理',
   'authority.SHIPPING_LIST': '发货列表',

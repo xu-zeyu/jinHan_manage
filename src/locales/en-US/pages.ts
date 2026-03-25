@@ -273,7 +273,7 @@ export default {
   'authority.ADMIN_PERMISSION_SYNC': 'Sync Permission',
   'authority.PRODUCT_LIST_VIEW': 'View Product',
   'authority.PRODUCT_LIST_ORDER': 'Create Order',
-  
+
   // Finance management permissions
   'authority.FINANCE': 'Finance Management',
   'authority.FINANCE_DASHBOARD': 'Finance Dashboard',
@@ -291,7 +291,7 @@ export default {
   'authority.FINANCE_REPORT': 'Finance Report',
   'authority.FINANCE_REPORT_VIEW': 'View Report',
   'authority.FINANCE_REPORT_EXPORT': 'Export Report',
-
+  'authority.FINANCE_INCOME_AUDIT': 'Audit',
   // Shipping management permissions
   'authority.SHIPPING': 'Shipping Management',
   'authority.SHIPPING_LIST': 'Shipping List',
