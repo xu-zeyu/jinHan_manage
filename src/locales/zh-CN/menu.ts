@@ -17,6 +17,8 @@ export default {
   'menu.shipping.shippingList': '发货列表',
   'menu.fosterCare': '寄养服务',
   'menu.fosterCare.fosterCareList': '寄养列表',
+  'menu.log': '日志管理',
+  'menu.log.logList': '操作日志',
   'menu.admin.role': '角色管理',
   'menu.admin.sub-page': '二级管理页',
   'menu.login': '登录',

@@ -7,10 +7,13 @@ import * as sms from './sms';
 import * as product from './product';
 import * as order from './order';
 import * as admin from './admin';
+import * as log from './log';
+
 export default {
   api,
   sms,
   product,
   order,
-  admin
+  admin,
+  log
 };

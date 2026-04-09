@@ -302,4 +302,10 @@ export default {
   'authority.FOSTER_CARE_LIST_UPDATE': '编辑寄养',
   'authority.FOSTER_CARE_LIST_STATUS_UPDATE': '更新寄养状态',
   'authority.FOSTER_CARE_LIST_DELETE': '删除寄养',
+
+  // 日志管理权限
+  'authority.LOG': '日志管理',
+  'authority.LOG_LIST': '操作日志',
+  'authority.LOG_LIST_VIEW': '查看日志',
+  'authority.LOG_LIST_DELETE': '删除日志',
 };

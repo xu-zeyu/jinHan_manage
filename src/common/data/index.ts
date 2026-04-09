@@ -70,6 +70,11 @@ export enum AdminAccess {
   FOSTER_CARE_LIST_UPDATE = 'FOSTER_CARE_LIST_UPDATE',
   FOSTER_CARE_LIST_STATUS_UPDATE = 'FOSTER_CARE_LIST_STATUS_UPDATE',
   FOSTER_CARE_LIST_DELETE = 'FOSTER_CARE_LIST_DELETE',
+
+  LOG = 'LOG',
+  LOG_LIST = 'LOG_LIST',
+  LOG_LIST_VIEW = 'LOG_LIST_VIEW',
+  LOG_LIST_DELETE = 'LOG_LIST_DELETE',
 }
 
 export const ADMIN_ACCESS_ALL: AdminAccess[] = Object.keys(AdminAccess)
@@ -154,6 +159,12 @@ export const AdminRole = {
       AdminAccess.FOSTER_CARE_LIST_UPDATE,
       AdminAccess.FOSTER_CARE_LIST_STATUS_UPDATE,
       AdminAccess.FOSTER_CARE_LIST_DELETE,
+    ],
+  },
+  LOG: {
+    LOG_LIST: [
+      AdminAccess.LOG_LIST_VIEW,
+      AdminAccess.LOG_LIST_DELETE,
     ],
   },
 }
