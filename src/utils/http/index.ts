@@ -22,6 +22,8 @@ const excludeTokenRegex = /^\/?(public|expose)\/?(.*)/
 requestArr.forEach(s => s.interceptors.request.use(
   (config: any) => {
     if (config.url && config.url?.match(excludeTokenRegex)) {
+      // 对于不需要token的接口，移除Authorization头
+      delete config.headers.Authorization;
       return config;
     }
     // 自动添加token

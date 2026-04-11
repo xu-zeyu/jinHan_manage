@@ -23,7 +23,7 @@ export async function getLogList(params: LogPageParams): Promise<ApiResponse<Pag
 export async function deleteLog(params: LogDeleteParams): Promise<ApiResponse<boolean>> {
   return request({
     url: '/admin/log/delete',
-    method: 'POST',
+    method: 'DELETE',
     data: params,
   });
 }
