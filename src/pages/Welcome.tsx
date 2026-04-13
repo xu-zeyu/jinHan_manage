@@ -15,6 +15,8 @@ import {
   CloudFilled,
   MailOutlined,
   PhoneOutlined,
+  EnvironmentOutlined,
+  DashboardOutlined,
 } from '@ant-design/icons';
 import { Line, Column, Pie } from '@ant-design/charts';
 import { PageContainer } from '@ant-design/pro-components';
@@ -103,34 +105,36 @@ const getCurrentDate = () => {
   return { year, month, day, weekDay };
 };
 
-const getWeatherBackground = (weatherType: string) => {
-  switch (weatherType) {
+const getWeatherIcon = (type: string) => {
+  const size = 16;
+  switch (type) {
     case 'sunny':
-      return 'linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%)';
+      return <SunOutlined style={{ fontSize: size, color: '#f59e0b' }} />;
     case 'rainy':
-      return 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)';
+      return <CloudFilled style={{ fontSize: size, color: '#3b82f6' }} />;
     default:
-      return 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)';
+      return <CloudOutlined style={{ fontSize: size, color: '#94a3b8' }} />;
   }
 };
 
-const WeatherIcon: React.FC<{ type: string; size?: number }> = ({ type, size = 20 }) => {
-  const iconProps = { style: { fontSize: size } };
+const getWeatherLabel = (type: string) => {
   switch (type) {
-    case 'sunny':
-      return <SunOutlined {...iconProps} style={{ ...iconProps.style, color: '#FAAD14' }} />;
-    case 'cloudy':
-      return <CloudOutlined {...iconProps} style={{ ...iconProps.style, color: '#64748b' }} />;
-    case 'rainy':
-      return <CloudFilled {...iconProps} style={{ ...iconProps.style, color: '#3b82f6' }} />;
-    default:
-      return <CloudOutlined {...iconProps} style={{ ...iconProps.style, color: '#64748b' }} />;
+    case 'sunny': return '晴';
+    case 'rainy': return '雨';
+    default: return '多云';
   }
+};
+
+// WMO weather code mapping
+const getWeatherTypeFromWMO = (code: number): string => {
+  if (code === 0 || code === 1) return 'sunny';
+  if (code >= 51 || code === 45 || code === 48) return 'rainy';
+  return 'cloudy';
 };
 
 const AnimatedNumber: React.FC<{ value: number; duration?: number; prefix?: string; suffix?: string }> = ({
   value,
-  duration = 1200,
+  duration = 1000,
   prefix = '',
   suffix = '',
 }) => {
@@ -138,40 +142,21 @@ const AnimatedNumber: React.FC<{ value: number; duration?: number; prefix?: stri
   const animationRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-    }
-
+    if (animationRef.current) cancelAnimationFrame(animationRef.current);
     let startTime: number | null = null;
     const startValue = displayValue;
-    const endValue = value;
-
     const animate = (timestamp: number) => {
       if (!startTime) startTime = timestamp;
       const progress = Math.min((timestamp - startTime) / duration, 1);
       const easeOut = 1 - Math.pow(1 - progress, 3);
-      const currentValue = Math.round(startValue + (endValue - startValue) * easeOut);
-      setDisplayValue(currentValue);
-
-      if (progress < 1) {
-        animationRef.current = requestAnimationFrame(animate);
-      }
+      setDisplayValue(Math.round(startValue + (value - startValue) * easeOut));
+      if (progress < 1) animationRef.current = requestAnimationFrame(animate);
     };
-
     animationRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
+    return () => { if (animationRef.current) cancelAnimationFrame(animationRef.current); };
   }, [value]);
 
-  return (
-    <span>
-      {prefix}{displayValue.toLocaleString()}{suffix}
-    </span>
-  );
+  return <span>{prefix}{displayValue.toLocaleString()}{suffix}</span>;
 };
 
 const OrderTrendChart: React.FC = () => {
@@ -183,26 +168,16 @@ const OrderTrendChart: React.FC = () => {
     point: false,
     areaStyle: { fill: 'l(0) 0:#e0e7ff 1:#fff' },
     color: '#6366f1',
-    xAxis: {
-      grid: false,
-      label: false,
-      line: false,
-      tickLine: false,
-    },
-    yAxis: {
-      grid: { line: { style: { stroke: '#f8fafc', lineWidth: 0.5 } } },
-      label: false,
-      line: false,
-      tickLine: false,
-    },
-    padding: [0, 0, 0, 0],
+    xAxis: { label: { style: { fontSize: 10, fill: '#94a3b8' } }, line: false, tickLine: false },
+    yAxis: { label: false, grid: { line: { style: { stroke: '#f1f5f9', lineWidth: 0.5 } } }, line: false, tickLine: false },
+    padding: [4, 0, 20, 0],
     autoFit: true,
   };
-  return <Line {...config} style={{ height: 28, width: '100%' }} />;
+  return <Line {...config} style={{ height: 120, width: '100%' }} />;
 };
 
 const FinanceChart: React.FC = () => {
-  const transformedData = [];
+  const transformedData: { month: string; type: string; value: number }[] = [];
   mockFinanceData.monthlyData.forEach(item => {
     transformedData.push({ month: item.month, type: '收入', value: item.revenue });
     transformedData.push({ month: item.month, type: '支出', value: item.expense });
@@ -214,25 +189,15 @@ const FinanceChart: React.FC = () => {
     yField: 'value',
     seriesField: 'type',
     isGroup: true,
-    columnStyle: { radius: [1, 1, 0, 0] },
+    columnStyle: { radius: [2, 2, 0, 0] },
     color: ['#10b981', '#f59e0b'],
-    xAxis: {
-      grid: false,
-      label: false,
-      line: false,
-      tickLine: false,
-    },
-    yAxis: {
-      grid: { line: { style: { stroke: '#f8fafc', lineWidth: 0.5 } } },
-      label: false,
-      line: false,
-      tickLine: false,
-    },
-    padding: [0, 0, 0, 0],
+    xAxis: { label: { style: { fontSize: 10, fill: '#94a3b8' } }, line: false, tickLine: false },
+    yAxis: { label: false, grid: { line: { style: { stroke: '#f1f5f9', lineWidth: 0.5 } } }, line: false, tickLine: false },
+    padding: [4, 0, 20, 0],
     legend: false,
     autoFit: true,
   };
-  return <Column {...config} style={{ height: 28, width: '100%' }} />;
+  return <Column {...config} style={{ height: 120, width: '100%' }} />;
 };
 
 const UserPieChart: React.FC = () => {
@@ -240,88 +205,43 @@ const UserPieChart: React.FC = () => {
     data: mockUserData.userDistribution,
     angleField: 'value',
     colorField: 'type',
-    radius: 0.85,
-    innerRadius: 0.75,
-    label: { type: 'inner', content: (datum: { percent: number }) => `${(datum.percent * 100).toFixed(0)}%`, style: { fontSize: 7, fontWeight: 600, fill: '#fff' } },
+    radius: 0.9,
+    innerRadius: 0.7,
+    label: false,
     interactions: [{ type: 'element-active' }],
     color: ['#6366f1', '#ec4899'],
     padding: [0, 0, 0, 0],
     autoFit: true,
+    statistic: {
+      title: false,
+      content: {
+        style: { fontSize: '12px', fontWeight: 600, color: '#334155' },
+        content: `${mockUserData.totalUsers}`,
+      },
+    },
   };
-  return <Pie {...config} style={{ height: 60, width: 60 }} />;
+  return <Pie {...config} style={{ height: 80, width: 80 }} />;
 };
 
 const WelcomeSkeleton: React.FC = () => (
-  <div style={{ padding: '16px' }}>
-    <Card variant="outlined" styles={{ body: { padding: '20px' } }} style={{ marginBottom: 16, borderRadius: 16 }}>
-      <Row gutter={16} align="middle">
-        <Col xs={24} sm={12} md={16}>
-          <Row gutter={12} align="center">
-            <Col span={4}>
-              <Skeleton.Avatar active size="small" />
-            </Col>
-            <Col span={20}>
-              <Skeleton.Input active style={{ width: '60%', marginBottom: 8 }} />
-              <div style={{ display: 'flex', gap: 12 }}>
-                <Skeleton.Input active style={{ width: '40%' }} />
-                <Skeleton.Input active style={{ width: '40%' }} />
-              </div>
-            </Col>
-          </Row>
-          <Row gutter={8} style={{ marginTop: 16 }}>
-            <Col span={10}>
-              <Skeleton.Input active style={{ height: 44 }} />
-            </Col>
-            <Col span={10}>
-              <Skeleton.Input active style={{ height: 44 }} />
-            </Col>
-          </Row>
-        </Col>
-        <Col xs={24} sm={12} md={8}>
-          <Skeleton.Input active style={{ height: 120 }} />
+  <div style={{ padding: '12px' }}>
+    <Card variant="outlined" styles={{ body: { padding: '16px' } }} style={{ marginBottom: 12, borderRadius: 12 }}>
+      <Row gutter={12} align="middle">
+        <Col flex="44px"><Skeleton.Avatar active size={44} shape="square" /></Col>
+        <Col flex="auto">
+          <Skeleton.Input active style={{ width: 160, height: 18, marginBottom: 4 }} />
+          <Skeleton.Input active style={{ width: 220, height: 14 }} />
         </Col>
       </Row>
     </Card>
-
-    <Row gutter={[8, 8]} style={{ marginBottom: 16 }}>
-      <Col xs={24} sm={12} md={6}>
-        <Skeleton.Input active style={{ height: 64 }} />
-      </Col>
-      <Col xs={24} sm={12} md={6}>
-        <Skeleton.Input active style={{ height: 64 }} />
-      </Col>
-      <Col xs={24} sm={12} md={6}>
-        <Skeleton.Input active style={{ height: 64 }} />
-      </Col>
-      <Col xs={24} sm={12} md={6}>
-        <Skeleton.Input active style={{ height: 64 }} />
-      </Col>
+    <Row gutter={[8, 8]} style={{ marginBottom: 12 }}>
+      {[1, 2, 3, 4].map(i => (
+        <Col xs={12} md={6} key={i}><Skeleton.Input active style={{ height: 56, width: '100%' }} /></Col>
+      ))}
     </Row>
-
-    <Row gutter={16}>
-      <Col xs={24} lg={12}>
-        <Card variant="outlined" styles={{ body: { padding: '16px' } }} style={{ borderRadius: 12 }}>
-          <Skeleton.Input active style={{ width: 80, marginBottom: 12 }} />
-          <Row gutter={4} style={{ marginBottom: 12 }}>
-            <Col span={6}><Skeleton.Input active style={{ height: 40 }} /></Col>
-            <Col span={6}><Skeleton.Input active style={{ height: 40 }} /></Col>
-            <Col span={6}><Skeleton.Input active style={{ height: 40 }} /></Col>
-            <Col span={6}><Skeleton.Input active style={{ height: 40 }} /></Col>
-          </Row>
-          <Skeleton.Input active style={{ height: 70 }} />
-        </Card>
-      </Col>
-      <Col xs={24} lg={12}>
-        <Card variant="outlined" styles={{ body: { padding: '16px' } }} style={{ borderRadius: 12 }}>
-          <Skeleton.Input active style={{ width: 80, marginBottom: 12 }} />
-          <Row gutter={4} style={{ marginBottom: 12 }}>
-            <Col span={8}><Skeleton.Input active style={{ height: 40 }} /></Col>
-            <Col span={8}><Skeleton.Input active style={{ height: 40 }} /></Col>
-            <Col span={8}><Skeleton.Input active style={{ height: 40 }} /></Col>
-          </Row>
-          <Skeleton.Input active style={{ height: 70 }} />
-        </Card>
-      </Col>
+    <Row gutter={[12, 12]}>
+      <Col xs={24} lg={12}><Skeleton.Input active style={{ height: 200, width: '100%' }} /></Col>
+      <Col xs={24} lg={12}><Skeleton.Input active style={{ height: 200, width: '100%' }} /></Col>
     </Row>
   </div>
 );
@@ -333,93 +253,81 @@ const Welcome: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const currentDate = getCurrentDate();
 
-  const getCurrentLocation = (): Promise<{ latitude: number; longitude: number }> => {
-    return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
-        reject(new Error('浏览器不支持地理位置服务'));
-        return;
-      }
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          resolve({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          });
-        },
-        (error) => {
-          reject(error);
-        },
-        { timeout: 10000, enableHighAccuracy: false }
-      );
-    });
-  };
-
-  const getCityName = async (latitude: number, longitude: number): Promise<string> => {
-    try {
-      const response = await fetch(
-        `https://restapi.amap.com/v3/geocode/regeo?location=${longitude},${latitude}&key=5c691a783e21e7102d8a5890c93b1d11&radius=1000&extensions=base`
-      );
-      const data = await response.json();
-      if (data.status === '1' && data.regeocode && data.regeocode.addressComponent) {
-        return data.regeocode.addressComponent.city || data.regeocode.addressComponent.province;
-      }
-      return '未知城市';
-    } catch (error) {
-      console.error('获取城市名称失败:', error);
-      return '未知城市';
-    }
-  };
-
   const fetchWeatherData = async () => {
-    let city = '北京';
     try {
-      const location = await getCurrentLocation();
-      city = await getCityName(location.latitude, location.longitude);
-    } catch (locationError) {
-      console.warn('无法获取当前位置，使用默认城市:', locationError);
-    }
+      // 获取用户位置
+      let latitude = 39.9042; // 默认北京
+      let longitude = 116.4074;
+      let cityName = '北京';
 
-    try {
-      const response = await fetch(
-        `https://restapi.amap.com/v3/weather/weatherInfo?city=${encodeURIComponent(city)}&key=5c691a783e21e7102d8a5890c93b1d11&extensions=base`
+      try {
+        const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000, enableHighAccuracy: false });
+        });
+        latitude = pos.coords.latitude;
+        longitude = pos.coords.longitude;
+      } catch {
+        console.warn('无法获取位置，使用默认城市');
+      }
+
+      // 使用 Open-Meteo 免费 API（无需 API Key）
+      const weatherRes = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,wind_direction_10m`
       );
-      const data = await response.json();
+      const weatherJson = await weatherRes.json();
 
-      if (data.status === '1' && data.lives && data.lives.length > 0) {
-        const weatherInfo = data.lives[0];
-        let weatherType = 'cloudy';
-        if (weatherInfo.weather.includes('晴')) {
-          weatherType = 'sunny';
-        } else if (weatherInfo.weather.includes('雨') || weatherInfo.weather.includes('雷')) {
-          weatherType = 'rainy';
+      if (weatherJson.current) {
+        const current = weatherJson.current;
+        const weatherType = getWeatherTypeFromWMO(current.weather_code);
+
+        // 使用 Open-Meteo geocoding 反查城市名
+        try {
+          const geoRes = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=zh`
+          );
+          const geoJson = await geoRes.json();
+          if (latitude !== 39.9042) {
+            // 如果有实际定位，用 BigDataCloud 免费反向地理编码
+            const reverseRes = await fetch(
+              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=zh`
+            );
+            const reverseJson = await reverseRes.json();
+            cityName = reverseJson.city || reverseJson.locality || reverseJson.principalSubdivision || '当前位置';
+          }
+        } catch {
+          // 城市名获取失败不影响天气展示
         }
 
+        const windDirs = ['北', '东北', '东', '东南', '南', '西南', '西', '西北'];
+        const windDir = windDirs[Math.round(current.wind_direction_10m / 45) % 8];
+
         setWeatherData({
-          city: weatherInfo.city,
-          temperature: parseInt(weatherInfo.temperature),
+          city: cityName,
+          temperature: Math.round(current.temperature_2m),
           weather: weatherType,
-          humidity: parseInt(weatherInfo.humidity),
-          wind: weatherInfo.winddirection + weatherInfo.windpower,
+          humidity: Math.round(current.relative_humidity_2m),
+          wind: `${windDir}风 ${Math.round(current.wind_speed_10m)}km/h`,
         });
         return;
       }
-    } catch (apiError) {
-      console.error('获取天气数据失败:', apiError);
+    } catch (error) {
+      console.error('天气数据获取失败:', error);
     }
 
+    // 兜底数据
     setWeatherData({
-      city,
-      temperature: Math.floor(Math.random() * 30) + 15,
-      weather: ['sunny', 'cloudy', 'rainy'][Math.floor(Math.random() * 3)],
-      humidity: Math.floor(Math.random() * 40) + 40,
-      wind: ['微风', '东风', '南风', '北风'][Math.floor(Math.random() * 4)],
+      city: '北京',
+      temperature: 22,
+      weather: 'cloudy',
+      humidity: 55,
+      wind: '微风',
     });
   };
 
   const fetchUserData = async () => {
     try {
       const response: any = await currentUserApi();
-      if (response.code == "200") {
+      if (response.code == '200') {
         setUserData(response.data);
       }
     } catch (error) {
@@ -434,298 +342,261 @@ const Welcome: React.FC = () => {
     fetchWeatherData();
   }, []);
 
-  const StatCard: React.FC<{
-    title: string;
-    value: number;
-    icon: React.ReactNode;
-    growth?: number;
-    color: string;
-  }> = ({ title, value, icon, growth, color }) => (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12,
-        padding: '14px',
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        border: '1px solid #e2e8f0',
-      }}
-    >
-      <div
-        style={{
-          width: 40,
-          height: 40,
-          borderRadius: 10,
-          backgroundColor: `${color}12`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <span style={{ color, fontSize: 20 }}>{icon}</span>
-      </div>
-      <div>
-        <div style={{ fontSize: '12px', color: '#64748b' }}>{title}</div>
-        <div style={{ fontSize: '24px', fontWeight: 700, color: '#1e293b', marginTop: 2 }}>
-          <AnimatedNumber value={value} />
-        </div>
-        {growth !== undefined && (
-          <div style={{ fontSize: '11px', color: growth >= 0 ? '#10b981' : '#ef4444', display: 'flex', alignItems: 'center', gap: 2, marginTop: 2 }}>
-            {growth >= 0 ? <ArrowUpOutlined style={{ fontSize: 10 }} /> : <ArrowDownOutlined style={{ fontSize: 10 }} />}
-            {Math.abs(growth)}%
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  const MiniStat: React.FC<{ label: string; value: number; color: string }> = ({ label, value, color }) => (
-    <div style={{ textAlign: 'center', padding: '10px 6px', backgroundColor: `${color}08`, borderRadius: 8 }}>
-      <div style={{ fontSize: '11px', color: '#64748b' }}>{label}</div>
-      <div style={{ fontSize: '18px', fontWeight: 700, color, marginTop: 3 }}>
-        <AnimatedNumber value={value} />
-      </div>
-    </div>
-  );
-
-  const FinanceStatCard: React.FC<{ label: string; value: number; color: string; isMoney?: boolean }> = ({
-    label,
-    value,
-    color,
-    isMoney = false
-  }) => (
-    <div style={{ padding: '10px', backgroundColor: `${color}08`, borderRadius: 8, textAlign: 'center' }}>
-      <div style={{ fontSize: '11px', color: '#64748b' }}>{label}</div>
-      <div style={{ fontSize: '18px', fontWeight: 700, color, marginTop: 3 }}>
-        {isMoney ? <AnimatedNumber value={Math.round(value / 1000)} prefix="¥" suffix="k" /> : <AnimatedNumber value={value} suffix="%" />}
-      </div>
-    </div>
-  );
-
-  if (loading) {
-    return <WelcomeSkeleton />;
-  }
+  if (loading) return <WelcomeSkeleton />;
 
   return (
     <PageContainer header={{ title: '' }}>
-        {/* 欢迎卡片 - 左右布局 */}
-        <Card
-          variant="outlined"
-          styles={{
-            body: { padding: '0' },
-            header: { display: 'none' },
-          }}
-          style={{
-            borderRadius: 16,
-            border: 'none',
-            background: weatherData ? getWeatherBackground(weatherData.weather) : '#fff',
-            marginBottom: 16,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
-            overflow: 'hidden',
-          }}
-        >
-          <Row gutter={0}>
-            {/* 左侧 - 用户信息、日期、天气 */}
-            <Col xs={24} sm={24} md={16}>
-              <div style={{ padding: '20px' }}>
-                {/* 用户信息 */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-                  <div
-                    style={{
-                      width: 56,
-                      height: 56,
-                      borderRadius: 14,
-                      backgroundColor: 'rgba(255,255,255,0.85)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      overflow: 'hidden',
-                      boxShadow: '0 4px 10px rgba(0,0,0,0.08)',
-                    }}
-                  >
-                    {userData?.avatar ? (
-                      <img
-                        src={userData.avatar}
-                        alt="用户头像"
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                    ) : (
-                      <UserOutlined style={{ fontSize: 28, color: '#94a3b8' }} />
-                    )}
-                  </div>
-
-                  <div>
-                    <div style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>欢迎回来</div>
-                    <div style={{ fontSize: '22px', fontWeight: 700, color: '#1e293b', marginTop: 2 }}>
-                      {userData?.realName || '用户'}
-                    </div>
-                    <div style={{ display: 'flex', gap: 16, marginTop: 6 }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: '12px', color: '#64748b' }}>
-                        <MailOutlined style={{ fontSize: 14 }} />
-                        {userData?.username || '-'}
-                      </span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: '12px', color: '#64748b' }}>
-                        <PhoneOutlined style={{ fontSize: 14 }} />
-                        {userData?.phone || '-'}
-                      </span>
-                    </div>
-                  </div>
+      {/* 顶部信息栏：用户 + 日期 + 天气 + 饼图 */}
+      <Card
+        variant="outlined"
+        styles={{ body: { padding: '16px 20px' } }}
+        style={{
+          borderRadius: 12,
+          border: 'none',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          marginBottom: 12,
+          boxShadow: '0 2px 12px rgba(102,126,234,0.25)',
+        }}
+      >
+        <Row align="middle" gutter={16}>
+          {/* 用户信息 */}
+          <Col flex="auto">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 10,
+                  backgroundColor: 'rgba(255,255,255,0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflow: 'hidden',
+                  flexShrink: 0,
+                }}
+              >
+                {userData?.avatar ? (
+                  <img src={userData.avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <UserOutlined style={{ fontSize: 22, color: 'rgba(255,255,255,0.8)' }} />
+                )}
+              </div>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>
+                  欢迎回来，{userData?.realName || '用户'}
                 </div>
+                <div style={{ display: 'flex', gap: 14, marginTop: 2 }}>
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <MailOutlined style={{ fontSize: 11 }} />{userData?.username || '-'}
+                  </span>
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <PhoneOutlined style={{ fontSize: 11 }} />{userData?.phone || '-'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </Col>
 
-                {/* 日期和天气 */}
-                <div style={{ display: 'flex', gap: 12 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px', backgroundColor: 'rgba(255,255,255,0.75)', borderRadius: 12 }}>
-                    <div style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
-                      <CalendarOutlined style={{ fontSize: 20, color: '#6366f1' }} />
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '12px', color: '#64748b' }}>今日日期</div>
-                      <div style={{ fontSize: '16px', fontWeight: 600, color: '#334155' }}>
-                        {currentDate.year}年{currentDate.month}月{currentDate.day}日
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#64748b' }}>{currentDate.weekDay}</div>
-                    </div>
+          {/* 日期 + 天气 */}
+          <Col>
+            <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <CalendarOutlined style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)' }} />
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', fontWeight: 500 }}>
+                  {currentDate.month}月{currentDate.day}日 {currentDate.weekDay}
+                </span>
+              </div>
+              {weatherData && (
+                <>
+                  <div style={{ width: 1, height: 16, backgroundColor: 'rgba(255,255,255,0.2)' }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {getWeatherIcon(weatherData.weather)}
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', fontWeight: 500 }}>
+                      {weatherData.temperature}°C {getWeatherLabel(weatherData.weather)}
+                    </span>
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>
+                      <EnvironmentOutlined style={{ fontSize: 10, marginRight: 2 }} />{weatherData.city}
+                    </span>
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>
+                      湿度{weatherData.humidity}%
+                    </span>
                   </div>
+                </>
+              )}
+            </div>
+          </Col>
+        </Row>
+      </Card>
 
-                  {weatherData && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px', backgroundColor: 'rgba(255,255,255,0.75)', borderRadius: 12 }}>
-                      <div style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
-                        <WeatherIcon type={weatherData.weather} size={22} />
-                      </div>
-                      <div>
-                        <div style={{ fontSize: '12px', color: '#64748b' }}>当前天气</div>
-                        <div style={{ fontSize: '16px', fontWeight: 600, color: '#334155' }}>
-                          {weatherData.temperature}°C {weatherData.weather === 'sunny' ? '晴天' : weatherData.weather === 'rainy' ? '雨天' : '多云'}
-                        </div>
-                        <div style={{ fontSize: '12px', color: '#64748b' }}>{weatherData.city}</div>
-                      </div>
-                    </div>
+      {/* 统计卡片 - 4列紧凑布局 */}
+      <Row gutter={[10, 10]} style={{ marginBottom: 12 }}>
+        {[
+          { title: '今日订单', value: mockOrderData.todayOrders, icon: <ShoppingCartOutlined />, growth: mockOrderData.orderGrowth, color: '#6366f1', bg: '#eef2ff' },
+          { title: '新增用户', value: mockUserData.todayNewUsers, icon: <UserOutlined />, growth: mockUserData.userGrowth, color: '#0ea5e9', bg: '#f0f9ff' },
+          { title: '今日收入', value: Math.round(mockFinanceData.todayRevenue / 1000), icon: <WalletOutlined />, growth: mockFinanceData.revenueGrowth, color: '#10b981', bg: '#f0fdf4', suffix: 'k' },
+          { title: '库存商品', value: mockProductData.inStockProducts, icon: <PauseOutlined />, color: '#f59e0b', bg: '#fffbeb' },
+        ].map((item, idx) => (
+          <Col xs={12} sm={12} md={6} key={idx}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                padding: '12px',
+                backgroundColor: '#fff',
+                borderRadius: 10,
+                border: '1px solid #f1f5f9',
+                transition: 'box-shadow 0.2s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)')}
+              onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}
+            >
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 8,
+                  backgroundColor: item.bg,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <span style={{ color: item.color, fontSize: 16 }}>{item.icon}</span>
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 11, color: '#94a3b8', lineHeight: 1 }}>{item.title}</div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginTop: 3 }}>
+                  <span style={{ fontSize: 20, fontWeight: 700, color: '#1e293b', lineHeight: 1 }}>
+                    <AnimatedNumber value={item.value} />
+                  </span>
+                  {item.growth !== undefined && (
+                    <span style={{ fontSize: 10, color: item.growth >= 0 ? '#10b981' : '#ef4444', display: 'flex', alignItems: 'center', gap: 1 }}>
+                      {item.growth >= 0 ? <ArrowUpOutlined style={{ fontSize: 8 }} /> : <ArrowDownOutlined style={{ fontSize: 8 }} />}
+                      {Math.abs(item.growth)}%
+                    </span>
                   )}
                 </div>
               </div>
-            </Col>
+            </div>
+          </Col>
+        ))}
+      </Row>
 
-            {/* 右侧 - 用户分布饼图 */}
-            <Col xs={24} sm={24} md={7}>
-              <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px'}}>
-                <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 600, marginBottom: 6 }}>用户分布</div>
-                  <UserPieChart />
-                <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: '9px', color: '#64748b', fontWeight: 500 }}>
-                    <div style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#6366f1' }} />
-                    男
-                  </span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: '9px', color: '#64748b', fontWeight: 500 }}>
-                    <div style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#ec4899' }} />
-                    女
-                  </span>
+      {/* 核心数据区域 - 三列布局 */}
+      <Row gutter={[12, 12]}>
+        {/* 业务概览 */}
+        <Col xs={24} lg={9}>
+          <Card
+            variant="outlined"
+            styles={{ body: { padding: '14px' } }}
+            style={{ borderRadius: 10, borderColor: '#f1f5f9', height: '100%' }}
+          >
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <DashboardOutlined style={{ fontSize: 13, color: '#6366f1' }} />业务概览
+            </div>
+            <Row gutter={[6, 6]} style={{ marginBottom: 10 }}>
+              {[
+                { label: '总订单', value: mockOrderData.totalOrders, color: '#6366f1' },
+                { label: '待处理', value: mockOrderData.pendingOrders, color: '#f59e0b' },
+                { label: '总用户', value: mockUserData.totalUsers, color: '#10b981' },
+                { label: '活跃', value: mockUserData.activeUsers, color: '#ec4899' },
+              ].map((s, i) => (
+                <Col span={6} key={i}>
+                  <div style={{ textAlign: 'center', padding: '6px 4px', backgroundColor: `${s.color}08`, borderRadius: 6 }}>
+                    <div style={{ fontSize: 10, color: '#94a3b8' }}>{s.label}</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: s.color, marginTop: 2 }}>
+                      <AnimatedNumber value={s.value} />
+                    </div>
+                  </div>
+                </Col>
+              ))}
+            </Row>
+            <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>7日订单趋势</div>
+            <OrderTrendChart />
+          </Card>
+        </Col>
+
+        {/* 经营数据 */}
+        <Col xs={24} lg={9}>
+          <Card
+            variant="outlined"
+            styles={{ body: { padding: '14px' } }}
+            style={{ borderRadius: 10, borderColor: '#f1f5f9', height: '100%' }}
+          >
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <WalletOutlined style={{ fontSize: 13, color: '#10b981' }} />经营数据
+            </div>
+            <Row gutter={[6, 6]} style={{ marginBottom: 10 }}>
+              {[
+                { label: '本月利润', value: mockFinanceData.profit, color: '#10b981', isMoney: true },
+                { label: '本月支出', value: mockFinanceData.expense, color: '#f59e0b', isMoney: true },
+                { label: '库存率', value: mockProductData.stockRate, color: '#6366f1' },
+              ].map((s, i) => (
+                <Col span={8} key={i}>
+                  <div style={{ textAlign: 'center', padding: '6px 4px', backgroundColor: `${s.color}08`, borderRadius: 6 }}>
+                    <div style={{ fontSize: 10, color: '#94a3b8' }}>{s.label}</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: s.color, marginTop: 2 }}>
+                      {s.isMoney ? <AnimatedNumber value={Math.round(s.value / 1000)} prefix="¥" suffix="k" /> : <AnimatedNumber value={s.value} suffix="%" />}
+                    </div>
+                  </div>
+                </Col>
+              ))}
+            </Row>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>
+              <span>收支趋势</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                <span style={{ width: 8, height: 3, borderRadius: 1, backgroundColor: '#10b981', display: 'inline-block' }} />收入
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                <span style={{ width: 8, height: 3, borderRadius: 1, backgroundColor: '#f59e0b', display: 'inline-block' }} />支出
+              </span>
+            </div>
+            <FinanceChart />
+          </Card>
+        </Col>
+
+        {/* 用户分布 */}
+        <Col xs={24} lg={6}>
+          <Card
+            variant="outlined"
+            styles={{ body: { padding: '14px' } }}
+            style={{ borderRadius: 10, borderColor: '#f1f5f9', height: '100%' }}
+          >
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <UserOutlined style={{ fontSize: 13, color: '#ec4899' }} />用户分布
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
+              <UserPieChart />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginBottom: 12 }}>
+              {[
+                { label: '男性', value: '52%', color: '#6366f1' },
+                { label: '女性', value: '48%', color: '#ec4899' },
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#64748b' }}>
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: item.color }} />
+                  {item.label} {item.value}
                 </div>
-              </div>
-            </Col>
-          </Row>
-        </Card>
-
-        {/* 统计卡片 */}
-        <Row gutter={[8, 8]} style={{ marginBottom: 16 }}>
-          <Col xs={24} sm={12} md={6}>
-            <StatCard
-              title="今日订单"
-              value={mockOrderData.todayOrders}
-              icon={<ShoppingCartOutlined />}
-              growth={mockOrderData.orderGrowth}
-              color="#6366f1"
-            />
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <StatCard
-              title="新增用户"
-              value={mockUserData.todayNewUsers}
-              icon={<UserOutlined />}
-              growth={mockUserData.userGrowth}
-              color="#0ea5e9"
-            />
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <StatCard
-              title="今日收入"
-              value={Math.round(mockFinanceData.todayRevenue / 1000)}
-              icon={<WalletOutlined />}
-              growth={mockFinanceData.revenueGrowth}
-              color="#10b981"
-            />
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <StatCard
-              title="库存商品"
-              value={mockProductData.inStockProducts}
-              icon={<PauseOutlined />}
-              color="#f59e0b"
-            />
-          </Col>
-        </Row>
-
-        {/* 核心数据区域 */}
-        <Row gutter={[16, 16]}>
-          <Col xs={24} lg={12}>
-            <Card
-              variant="outlined"
-              styles={{
-                body: { padding: '16px' },
-                header: { display: 'none' },
-              }}
-              style={{ borderRadius: 12, borderColor: '#e2e8f0', backgroundColor: '#fff' }}
-            >
-              <div style={{ fontSize: '16px', fontWeight: 600, color: '#334155', marginBottom: 12 }}>业务概览</div>
-              <Row gutter={[4, 4]} style={{ marginBottom: 12 }}>
-                <Col span={6}>
-                  <MiniStat label="总订单" value={mockOrderData.totalOrders} color="#6366f1" />
-                </Col>
-                <Col span={6}>
-                  <MiniStat label="待处理" value={mockOrderData.pendingOrders} color="#f59e0b" />
-                </Col>
-                <Col span={6}>
-                  <MiniStat label="总用户" value={mockUserData.totalUsers} color="#10b981" />
-                </Col>
-                <Col span={6}>
-                  <MiniStat label="活跃" value={mockUserData.activeUsers} color="#ec4899" />
-                </Col>
-              </Row>
-              <div>
-                <div style={{ fontSize: '13px', color: '#64748b', marginBottom: 8 }}>订单趋势</div>
-                <OrderTrendChart />
-              </div>
-            </Card>
-          </Col>
-
-          <Col xs={24} lg={12}>
-            <Card
-              variant="outlined"
-              styles={{
-                body: { padding: '16px' },
-                header: { display: 'none' },
-              }}
-              style={{ borderRadius: 12, borderColor: '#e2e8f0', backgroundColor: '#fff' }}
-            >
-              <div style={{ fontSize: '16px', fontWeight: 600, color: '#334155', marginBottom: 12 }}>经营数据</div>
-              <Row gutter={[4, 4]} style={{ marginBottom: 12 }}>
-                <Col span={8}>
-                  <FinanceStatCard label="本月利润" value={mockFinanceData.profit} color="#10b981" isMoney />
-                </Col>
-                <Col span={8}>
-                  <FinanceStatCard label="本月支出" value={mockFinanceData.expense} color="#f59e0b" isMoney />
-                </Col>
-                <Col span={8}>
-                  <FinanceStatCard label="库存率" value={mockProductData.stockRate} color="#6366f1" />
-                </Col>
-              </Row>
-              <div>
-                <div style={{ fontSize: '13px', color: '#64748b', marginBottom: 8 }}>收支趋势</div>
-                <FinanceChart />
-              </div>
-            </Card>
-          </Col>
-        </Row>
+              ))}
+            </div>
+            <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 10 }}>
+              {[
+                { label: '总用户', value: mockUserData.totalUsers.toLocaleString(), color: '#334155' },
+                { label: '今日新增', value: `+${mockUserData.todayNewUsers}`, color: '#10b981' },
+                { label: '活跃用户', value: mockUserData.activeUsers.toLocaleString(), color: '#6366f1' },
+                { label: '不活跃', value: mockUserData.inactiveUsers.toString(), color: '#94a3b8' },
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 11 }}>
+                  <span style={{ color: '#94a3b8' }}>{item.label}</span>
+                  <span style={{ fontWeight: 600, color: item.color }}>{item.value}</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </Col>
+      </Row>
     </PageContainer>
   );
 };
