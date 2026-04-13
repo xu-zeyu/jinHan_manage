@@ -11,7 +11,7 @@ const Settings: ProLayoutProps & {
   navTheme: 'light',
   colorPrimary: '#2F54EB',
   layout: 'side',
-  siderMenuType: 'group',
+  siderMenuType: 'sub',
   contentWidth: 'Fluid',
   fixedHeader: false,
   fixSiderbar: true,
@@ -27,5 +27,3 @@ const Settings: ProLayoutProps & {
 };
 
 export default Settings;
-
-
