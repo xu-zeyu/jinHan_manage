@@ -8,6 +8,7 @@ import * as product from './product';
 import * as order from './order';
 import * as admin from './admin';
 import * as log from './log';
+import * as dashboard from './dashboard';
 
 export default {
   api,
@@ -15,5 +16,6 @@ export default {
   product,
   order,
   admin,
-  log
+  log,
+  dashboard
 };

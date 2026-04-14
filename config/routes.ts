@@ -26,7 +26,7 @@ export default [
     path: '/welcome',
     name: 'welcome',
     icon: 'smile',
-    component: './Welcome',
+    component: './welcome',
   },
   {
     path: '/user',

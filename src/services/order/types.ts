@@ -17,8 +17,8 @@ export enum OrderStatusEnum {
 // 支付方式枚举
 export enum PaymentMethodEnum {
   BANK = 'BANK', // 银行转账
-  ALIPAY = 'ALIPAY', // 支付宝
-  WECHAT = 'WECHAT', // 微信支付
+  ALIPAY = 'ZFB', // 支付宝
+  WECHAT = 'WX', // 微信支付
 }
 
 // 订单商品项

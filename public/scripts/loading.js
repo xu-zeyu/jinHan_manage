@@ -17,6 +17,7 @@
         #root {
           background-repeat: no-repeat;
           background-size: 100% auto;
+          background: linear-gradient(135deg, #475569 0%, #334155 50%, #1e293b 100%);
         }
 
         .loading-title {
