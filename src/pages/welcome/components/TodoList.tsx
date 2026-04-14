@@ -1,4 +1,3 @@
-import './glass-drawer.css';
 import React, { useState } from 'react';
 import { Tag, Checkbox, Drawer } from 'antd';
 import { CheckSquareOutlined, ClockCircleOutlined, CaretRightOutlined } from '@ant-design/icons';
@@ -101,7 +100,8 @@ const TodoList: React.FC<TodoListProps> = ({ todos, pendingCount, weatherData })
         width={400}
         onClose={() => setIsExpanded(false)}
         open={isExpanded}
-        maskStyle={{ background: 'rgba(0, 0, 0, 0.1)' }} wrapperStyle={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: 400, background: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderLeft: '1px solid rgba(255, 255, 255, 0.3)' }} styles={{
+        maskStyle={{ background: 'rgba(0, 0, 0, 0.1)' }} styles={{
+          wrapper: { position: 'absolute', top: 0, right: 0, bottom: 0, width: 400, background: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderLeft: '1px solid rgba(255, 255, 255, 0.3)' },
           body: { padding: 16, paddingTop: 8, background: 'transparent' },
           header: { padding: 16, background: 'transparent', borderBottom: '1px solid rgba(0, 0, 0, 0.1)' },
         }}
