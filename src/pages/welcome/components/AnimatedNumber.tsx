@@ -1,13 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react';
 
 interface AnimatedNumberProps {
+  decimals?: number;
   value: number;
   duration?: number;
   prefix?: string;
   suffix?: string;
 }
 
-const AnimatedNumber: React.FC<AnimatedNumberProps> = ({ value, duration = 800, prefix = '', suffix = '' }) => {
+const AnimatedNumber: React.FC<AnimatedNumberProps> = ({ value, duration = 800, prefix = '', suffix = '', decimals = 0 }) => {
   const [display, setDisplay] = useState(0);
   const rafRef = useRef<number>(0);
   const prevRef = useRef(0);
@@ -20,7 +21,7 @@ const AnimatedNumber: React.FC<AnimatedNumberProps> = ({ value, duration = 800, 
       if (!start) start = ts;
       const p = Math.min((ts - start) / duration, 1);
       const e = 1 - Math.pow(2, -10 * p);
-      setDisplay(Math.round(from + (value - from) * e));
+      setDisplay(from + (value - from) * e);
       if (p < 1) rafRef.current = requestAnimationFrame(step);
       else prevRef.current = value;
     };
@@ -28,7 +29,7 @@ const AnimatedNumber: React.FC<AnimatedNumberProps> = ({ value, duration = 800, 
     return () => cancelAnimationFrame(rafRef.current);
   }, [value]);
 
-  return <span>{prefix}{display.toLocaleString()}{suffix}</span>;
+  return <span>{prefix}{display.toFixed(decimals)}{suffix}</span>;
 };
 
 export default AnimatedNumber;

@@ -10,8 +10,10 @@ import StatCard from './components/StatCard';
 import BusinessOverview from './components/BusinessOverview';
 import FinanceOverview from './components/FinanceOverview';
 import UserDistribution from './components/UserDistribution';
+import TodoList from './components/TodoList';
 import WelcomeSkeleton from './components/Skeleton';
 import { initAnimations, getWeatherTypeFromWMO } from './utils';
+import { mockTodoData } from './mock';
 import type { UserData, WeatherData } from './types';
 import type { DashboardSummaryVO } from '@/services/dashboard/types';
 
@@ -173,7 +175,7 @@ const Index: React.FC = () => {
 
   const todayOrders = summaryData?.todayOrderCount ?? 0
   const todayNewUsers = summaryData?.todayNewUsers ?? 0;
-  const todayIncome = Math.round((summaryData?.todayIncome || 0) / 1000);
+  const todayIncome = (summaryData?.todayIncome || 0) / 1000;
   const onSaleProducts= summaryData?.onSaleProducts ?? 0
 
   return (
@@ -213,6 +215,7 @@ const Index: React.FC = () => {
             color="#10b981"
             bg="#f0fdf4"
             suffix="k"
+            decimals={1}
           />
         </Col>
         <Col xs={12} sm={12} md={6}>
@@ -223,6 +226,12 @@ const Index: React.FC = () => {
             color="#f59e0b"
             bg="#fffbeb"
           />
+        </Col>
+      </Row>
+
+      <Row gutter={[12, 12]} style={{ marginBottom: 12 }}>
+        <Col xs={24} lg={8}>
+          <TodoList todos={mockTodoData.list} pendingCount={mockTodoData.pending}   weatherData={weatherData}/>
         </Col>
       </Row>
 

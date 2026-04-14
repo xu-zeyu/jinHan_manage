@@ -53,7 +53,7 @@ const FinanceOverview: React.FC<FinanceOverviewProps> = ({ chartsReady }) => {
               <div style={{ fontSize: 12, color: '#64748b' }}>{s.label}</div>
               <div style={{ fontSize: 18, fontWeight: 700, color: s.color, marginTop: 4 }}>
                 {s.isMoney
-                  ? <AnimatedNumber value={Math.round(s.value / 1000)} prefix="¥" suffix="k" />
+                  ? <AnimatedNumber value={(s.value / 1000)}  decimals={1} prefix="¥" suffix="k" />
                   : <AnimatedNumber value={s.value} suffix="%" />}
               </div>
             </div>

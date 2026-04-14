@@ -3,16 +3,16 @@ import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import AnimatedNumber from './AnimatedNumber';
 
 interface StatCardProps {
+  decimals?: number;
   title: string;
   value: number;
   icon: React.ReactNode;
-  growth?: number;
   color: string;
   bg: string;
   suffix?: string;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ title, value, icon, growth, color, bg, suffix }) => {
+const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, bg, suffix, decimals }) => {
   return (
     <div
       className="w-stat"
@@ -34,14 +34,8 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, growth, color, 
         <div style={{ fontSize: 12, color: '#94a3b8', lineHeight: 1.2 }}>{title}</div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 5, marginTop: 4 }}>
           <span style={{ fontSize: 22, fontWeight: 700, color: '#1e293b', lineHeight: 1 }}>
-            <AnimatedNumber value={value} suffix={suffix} />
+            <AnimatedNumber value={value} suffix={suffix} decimals={decimals} />
           </span>
-          {growth !== undefined && (
-            <span style={{ fontSize: 11, color: growth >= 0 ? '#10b981' : '#ef4444', display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              {growth >= 0 ? <ArrowUpOutlined style={{ fontSize: 9 }} /> : <ArrowDownOutlined style={{ fontSize: 9 }} />}
-              {Math.abs(growth)}%
-            </span>
-          )}
         </div>
       </div>
     </div>

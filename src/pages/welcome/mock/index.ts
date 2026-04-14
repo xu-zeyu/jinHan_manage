@@ -1,4 +1,4 @@
-import type { OrderData, UserDataStats, FinanceData, ProductData } from '../types';
+import type { OrderData, UserDataStats, FinanceData, ProductData, TodoData } from '../types';
 
 export const mockOrderData: OrderData = {
   totalOrders: 1234,
@@ -57,4 +57,76 @@ export const mockProductData: ProductData = {
   outOfStockProducts: 15,
   hotProducts: 28,
   stockRate: 74.5,
+};
+
+export const mockTodoData: TodoData = {
+  total: 8,
+  pending: 5,
+  completed: 3,
+  list: [
+    {
+      id: 1,
+      title: '审核新用户注册申请',
+      priority: 'high',
+      status: 'pending',
+      dueDate: '今天',
+      category: 'user',
+    },
+    {
+      id: 2,
+      title: '处理待发货订单',
+      priority: 'high',
+      status: 'pending',
+      dueDate: '今天',
+      category: 'order',
+    },
+    {
+      id: 3,
+      title: '更新商品库存信息',
+      priority: 'medium',
+      status: 'pending',
+      dueDate: '明天',
+      category: 'product',
+    },
+    {
+      id: 4,
+      title: '财务报表核对',
+      priority: 'medium',
+      status: 'pending',
+      dueDate: '本周',
+      category: 'finance',
+    },
+    {
+      id: 5,
+      title: '系统安全巡检',
+      priority: 'low',
+      status: 'pending',
+      dueDate: '本月',
+      category: 'system',
+    },
+    {
+      id: 6,
+      title: '完成上月销售数据分析',
+      priority: 'high',
+      status: 'completed',
+      dueDate: '已完成',
+      category: 'finance',
+    },
+    {
+      id: 7,
+      title: '更新商品分类',
+      priority: 'medium',
+      status: 'completed',
+      dueDate: '已完成',
+      category: 'product',
+    },
+    {
+      id: 8,
+      title: '用户反馈汇总处理',
+      priority: 'low',
+      status: 'completed',
+      dueDate: '已完成',
+      category: 'user',
+    },
+  ],
 };

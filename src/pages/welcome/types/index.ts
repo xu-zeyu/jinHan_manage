@@ -53,3 +53,19 @@ export interface ProductData {
   hotProducts: number;
   stockRate: number;
 }
+
+export interface TodoItem {
+  id: number;
+  title: string;
+  priority: 'high' | 'medium' | 'low';
+  status: 'pending' | 'completed';
+  dueDate?: string;
+  category: string;
+}
+
+export interface TodoData {
+  total: number;
+  pending: number;
+  completed: number;
+  list: TodoItem[];
+}
