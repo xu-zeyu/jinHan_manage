@@ -38,7 +38,7 @@ const Index: React.FC = () => {
   const stompClientRef = useRef<Client | null>(null);
 
   const TIMEOUT_DURATION = 5000;
-  const TODO_WS_ENDPOINT = `${process.env.API_BASE_URL || ''}/ws/todo`;
+  const TODO_WS_ENDPOINT = `http://localhost:8081/ws/todo`;
 
   useEffect(() => {
     initAnimations();
@@ -223,6 +223,7 @@ const Index: React.FC = () => {
         client.subscribe('/topic/todo/admin', (frame) => {
           try {
             const message = JSON.parse(frame.body) as TodoNoticeMessage;
+            console.log('message',message)
             handleTodoNoticeMessage(message);
           } catch {
             // ignore malformed websocket message
