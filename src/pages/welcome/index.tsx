@@ -1,8 +1,11 @@
 import { useModel } from '@umijs/max';
-import { Row, Col } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { Row, Col, notification } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import SockJS from 'sockjs-client';
+import { Client } from '@stomp/stompjs';
 import { currentUserApi } from '@/services/api';
 import { getDashboardSummary } from '@/services/dashboard';
+import { getTodoPage, getTodoPendingCount } from '@/services/todo';
 import { ShoppingCartOutlined, UserOutlined, WalletOutlined, PauseOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
 import Header from './components/Header';
@@ -13,20 +16,29 @@ import UserDistribution from './components/UserDistribution';
 import TodoList from './components/TodoList';
 import WelcomeSkeleton from './components/Skeleton';
 import { initAnimations, getWeatherTypeFromWMO } from './utils';
-import { mockTodoData } from './mock';
-import type { UserData, WeatherData } from './types';
+import type { UserData, WeatherData, TodoItem } from './types';
 import type { DashboardSummaryVO } from '@/services/dashboard/types';
+import {
+  TodoStatusEnum,
+  TodoNoticeActionEnum,
+  type TodoNoticeMessage,
+  type TodoVO,
+} from '@/services/todo/types';
 
 const Index: React.FC = () => {
   const { initialState } = useModel('@@initialState');
   const [userData, setUserData] = useState<UserData | null>(null);
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [summaryData, setSummaryData] = useState<DashboardSummaryVO | null>(null);
+  const [todoList, setTodoList] = useState<TodoItem[]>([]);
+  const [todoPendingCount, setTodoPendingCount] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [chartsReady, setChartsReady] = useState(false);
   const [headerLoading, setHeaderLoading] = useState(true);
+  const stompClientRef = useRef<Client | null>(null);
 
   const TIMEOUT_DURATION = 5000;
+  const TODO_WS_ENDPOINT = `${process.env.API_BASE_URL || ''}/ws/todo`;
 
   useEffect(() => {
     initAnimations();
@@ -146,12 +158,127 @@ const Index: React.FC = () => {
     });
   };
 
+  const mapTodoItem = (item: Partial<TodoVO>): TodoItem => {
+    const isPending = item.status === TodoStatusEnum.PENDING;
+    const category = (item.bizType || 'system').toString().toLowerCase();
+
+    return {
+      id: item.id || 0,
+      title: item.title || item.content || '-',
+      priority: isPending ? 'high' : 'low',
+      status: isPending ? 'pending' : 'completed',
+      dueDate: item.expireTime || item.createdTime || '无截止日期',
+      category,
+    };
+  };
+
+  const handleTodoNoticeMessage = (message: TodoNoticeMessage) => {
+    const todoItem = mapTodoItem({
+      id: message.todoId,
+      title: message.title,
+      content: message.content,
+      bizType: message.bizType,
+      status: message.status,
+      expireTime: message.expireTime,
+    });
+
+    if (message.action === TodoNoticeActionEnum.CREATED && message.status === TodoStatusEnum.PENDING) {
+      setTodoPendingCount((prev) => prev + 1);
+      setTodoList((prev) => {
+        const filtered = prev.filter((item) => item.id !== todoItem.id);
+        return [todoItem, ...filtered].slice(0, 20);
+      });
+    }
+
+    if (
+      message.action === TodoNoticeActionEnum.UPDATED &&
+      (message.status === TodoStatusEnum.COMPLETED || message.status === TodoStatusEnum.EXPIRED)
+    ) {
+      setTodoPendingCount((prev) => Math.max(0, prev - 1));
+      setTodoList((prev) =>
+        prev.map((item) =>
+          item.id === todoItem.id
+            ? {
+                ...item,
+                status: 'completed',
+                dueDate: message.expireTime || item.dueDate,
+              }
+            : item,
+        ),
+      );
+    }
+
+    notification.info({
+      message: message.title || '待办通知',
+      description: message.content || message.bizId || '收到待办状态变更',
+      placement: 'topRight',
+    });
+  };
+
+  const connectTodoWebSocket = () => {
+    const client = new Client({
+      webSocketFactory: () => new SockJS(TODO_WS_ENDPOINT),
+      reconnectDelay: 5000,
+      onConnect: () => {
+        client.subscribe('/topic/todo/admin', (frame) => {
+          try {
+            const message = JSON.parse(frame.body) as TodoNoticeMessage;
+            handleTodoNoticeMessage(message);
+          } catch {
+            // ignore malformed websocket message
+          }
+        });
+      },
+      onStompError: () => {
+        // keep silent and rely on reconnectDelay
+      },
+    });
+
+    client.activate();
+    stompClientRef.current = client;
+  };
+
+  const fetchTodoData = async () => {
+    return new Promise<void>((resolve) => {
+      const timeout = setTimeout(() => {
+        resolve();
+      }, TIMEOUT_DURATION);
+
+      const fetchData = async () => {
+        try {
+          const [pageRes, pendingRes]: any = await Promise.all([
+            getTodoPage({ page: 1, size: 20 }),
+            getTodoPendingCount(),
+          ]);
+
+          if (pageRes?.code === '200') {
+            const records = pageRes?.data?.records || [];
+            setTodoList(records.map(mapTodoItem));
+          }
+
+          if (pendingRes?.code === '200') {
+            setTodoPendingCount(pendingRes?.data || 0);
+          }
+        } catch {
+          setTodoList([]);
+          setTodoPendingCount(0);
+        } finally {
+          clearTimeout(timeout);
+          resolve();
+        }
+      };
+
+      fetchData();
+    });
+  };
+
   useEffect(() => {
     const fetchAllData = async () => {
       await Promise.all([
         fetchUserData(),
         fetchWeatherData(),
         fetchSummaryData(),
+        fetchTodoData(),
       ]);
 
       setTimeout(() => {
@@ -160,6 +287,17 @@ const Index: React.FC = () => {
     };
 
     fetchAllData();
+  }, []);
+
+  useEffect(() => {
+    connectTodoWebSocket();
+
+    return () => {
+      if (stompClientRef.current) {
+        stompClientRef.current.deactivate();
+        stompClientRef.current = null;
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -231,7 +369,7 @@ const Index: React.FC = () => {
 
       <Row gutter={[12, 12]} style={{ marginBottom: 12 }}>
         <Col xs={24} lg={8}>
-          <TodoList todos={mockTodoData.list} pendingCount={mockTodoData.pending}   weatherData={weatherData}/>
+          <TodoList todos={todoList} pendingCount={todoPendingCount} weatherData={weatherData} />
         </Col>
       </Row>
 

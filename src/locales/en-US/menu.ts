@@ -17,7 +17,6 @@ export default {
   'menu.shipping.shippingList': 'Shipping List',
   'menu.fosterCare': 'Foster Care',
   'menu.fosterCare.fosterCareList': 'Foster Care List',
-  'menu.admin': 'System Admin',
   'menu.admin.role': 'Role Management',
   'menu.admin.sub-page': 'Sub-Page',
   'menu.login': 'Login',
