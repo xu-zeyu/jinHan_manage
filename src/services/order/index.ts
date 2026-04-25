@@ -60,8 +60,11 @@ export async function payOrder(data: OrderPayParams): Promise<ApiResponse<any>> 
  */
 export async function cancelOrder(orderId: string): Promise<ApiResponse<any>> {
   return request({
-    url: `/order/cancel/${orderId}`,
+    url: '/order/cancel',
     method: 'POST',
+    data: {
+      orderId,
+    },
   });
 }
 
@@ -113,6 +116,7 @@ export async function affirmOrder(orderId: string): Promise<ApiResponse<any>> {
     method: 'POST',
     data: {
       orderId,
+      approved: true,
     },
   });
 }

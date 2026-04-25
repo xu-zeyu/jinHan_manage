@@ -38,7 +38,7 @@ const Index: React.FC = () => {
   const stompClientRef = useRef<Client | null>(null);
 
   const TIMEOUT_DURATION = 5000;
-  const TODO_WS_ENDPOINT = `http://localhost:8081/ws/todo`;
+  const TODO_WS_ENDPOINT = `http://192.168.9.144:8081/ws/todo`;
 
   useEffect(() => {
     initAnimations();

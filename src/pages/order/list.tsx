@@ -1,7 +1,7 @@
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { PageContainer, ProTable } from '@ant-design/pro-components';
-import {Button, Modal, Tag, Space, App, Descriptions, Form, Radio, message, Upload, Input} from 'antd';
-import { EyeOutlined, PayCircleOutlined, UploadOutlined, DeliveredProcedureOutlined } from '@ant-design/icons';
+import {Button, Modal, Tag, Space, App, Descriptions, Form, Radio, message, Input} from 'antd';
+import { EyeOutlined, PayCircleOutlined, DeliveredProcedureOutlined } from '@ant-design/icons';
 import ImgUpload from '@/components/ImgUpload';
 import React, { useRef, useState } from 'react';
 import { useIntl } from '@umijs/max';
@@ -166,6 +166,19 @@ const OrderList: React.FC = () => {
                 onClick={() => handleAffirm(record)}
               >
                 去确认
+              </Button>
+            </AccessBtnAuth>
+          )}
+          {record.status === OrderStatusEnum.PENDING_SHIP && (
+            <AccessBtnAuth authority={AdminAccess.ORDER_LIST_SHIP}>
+              <Button
+                type="link"
+                size="small"
+                icon={<DeliveredProcedureOutlined />}
+                style={{ padding: '0 4px' }}
+                onClick={() => setCurrentOrder(record)}
+              >
+                发货
               </Button>
             </AccessBtnAuth>
           )}
@@ -363,6 +376,10 @@ const OrderList: React.FC = () => {
     setDetailOrder(null);
   };
 
+  const handleCloseShip = () => {
+    setCurrentOrder(null);
+  };
+
   return (
     <PageContainer>
       <ProTable<OrderVO>
@@ -441,6 +458,16 @@ const OrderList: React.FC = () => {
           </>
         )}
       </Modal>
+
+      <OrderShipModal
+        visible={!!currentOrder}
+        order={currentOrder}
+        onCancel={handleCloseShip}
+        onSuccess={() => {
+          handleCloseShip();
+          actionRef.current?.reload();
+        }}
+      />
     </PageContainer>
   );
 };

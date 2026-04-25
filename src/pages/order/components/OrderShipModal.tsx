@@ -33,7 +33,7 @@ const OrderShipModal: React.FC<OrderShipModalProps> = ({
         onSuccess();
       }
     } catch (error) {
-      if (error.errorFields) {
+      if ((error as { errorFields?: unknown }).errorFields) {
         // 表单验证错误
         return;
       }

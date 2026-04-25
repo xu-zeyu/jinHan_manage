@@ -1,5 +1,5 @@
 import request from '@/utils/http/index'
-import type {ApiResponse, PageResult, UserAuthInfoVO, UserFormVO, UserPageParams, UserVO} from './types'
+import type {ApiResponse, PageResult, UserAuthInfoVO, UserPageParams, UserVO} from './types'
 
 const BASE_PATH = '/user'
 
@@ -21,60 +21,6 @@ export async function getUserById(userId: number): Promise<ApiResponse<UserVO>> 
   return request({
     url: `${BASE_PATH}/${userId}`,
     method: 'get',
-  })
-}
-
-/**
- * 创建用户
- */
-export async function createUser(data: UserFormVO): Promise<ApiResponse<any>> {
-  return request({
-    url: BASE_PATH,
-    method: 'post',
-    data,
-  })
-}
-
-/**
- * 更新用户
- */
-export async function updateUser(data: UserFormVO): Promise<ApiResponse<any>> {
-  return request({
-    url: BASE_PATH,
-    method: 'put',
-    data,
-  })
-}
-
-/**
- * 删除用户
- */
-export async function deleteUser(userId: number): Promise<ApiResponse<any>> {
-  return request({
-    url: `${BASE_PATH}/${userId}`,
-    method: 'delete',
-  })
-}
-
-/**
- * 重置用户密码
- */
-export async function resetUserPassword(userId: number, newPassword: string): Promise<ApiResponse<any>> {
-  return request({
-    url: `${BASE_PATH}/${userId}/reset-password`,
-    method: 'put',
-    data: { newPassword },
-  })
-}
-
-/**
- * 冻结/解冻用户
- */
-export async function freezeUser(userId: number, freeze: boolean): Promise<ApiResponse<any>> {
-  return request({
-    url: `${BASE_PATH}/${userId}/freeze`,
-    method: 'put',
-    params: { freeze },
   })
 }
 

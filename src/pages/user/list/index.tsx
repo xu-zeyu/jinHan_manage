@@ -1,33 +1,25 @@
 import type {ActionType, ProColumns} from '@ant-design/pro-components';
 import {PageContainer, ProTable} from '@ant-design/pro-components';
-import {Button, Modal, Tag, Space, App, message} from 'antd';
-import {PlusOutlined, LockOutlined, CheckCircleOutlined, EyeOutlined} from '@ant-design/icons';
+import {Button, Modal, Tag, Space} from 'antd';
+import {CheckCircleOutlined, EyeOutlined} from '@ant-design/icons';
 import React, {useRef, useState} from 'react';
 import {useIntl} from '@umijs/max';
 import {
   getUserPage,
   getUserById,
-  createUser,
-  deleteUser,
-  resetUserPassword,
-  freezeUser
 } from '@/services/user';
-import type {UserVO, UserFormVO, UserPageParams} from '@/services/user/types';
+import type {UserVO, UserPageParams} from '@/services/user/types';
 import {UserStatusEnum, UserStatusTextMap, GenderEnum, GenderTextMap} from '@/services/user/types';
-import UserForm, {UserFormRef} from './components/UserForm';
+import UserForm from './components/UserForm';
 import UserAuthAuditModal from '../components/UserAuthAuditModal';
 import AccessBtnAuth from '@/components/AccessBtnAuth';
 import {AdminAccess} from '@/common/data';
 
 const UserList: React.FC = () => {
   const intl = useIntl();
-  const {modal} = App.useApp();
   const actionRef = useRef<ActionType>(null);
-  const formRef = useRef<UserFormRef>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [viewingRecord, setViewingRecord] = useState<UserVO | null>(null);
-  const [passwordModalVisible, setPasswordModalVisible] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<UserVO | null>(null);
   const [auditModalVisible, setAuditModalVisible] = useState(false);
   const [selectedUserForAudit, setSelectedUserForAudit] = useState<UserVO | null>(null);
 
@@ -177,21 +169,6 @@ const UserList: React.FC = () => {
               详情
             </Button>
           </AccessBtnAuth>
-          <AccessBtnAuth authority={AdminAccess.USER_LIST_UPDATE}>
-            <Button
-              type="link"
-              size="small"
-              icon={<LockOutlined/>}
-              onClick={() => handleResetPassword(record)}
-            >
-              重置密码
-            </Button>
-          </AccessBtnAuth>
-          <AccessBtnAuth authority={AdminAccess.USER_LIST_DELETE}>
-            <Button type="link" size="small" danger onClick={() => handleDelete(record)}>
-              删除
-            </Button>
-          </AccessBtnAuth>
         </Space>
       ),
     },
@@ -230,123 +207,12 @@ const UserList: React.FC = () => {
   };
 
   /**
-   * 打开新增模态框
-   */
-  const handleCreate = () => {
-    setViewingRecord(null);
-    setModalVisible(true);
-  };
-
-  /**
    * 查看用户详情
    */
   const handleView = async (record: UserVO) => {
     const {data} = await getUserById(record.userId)
     setViewingRecord(data);
     setModalVisible(true);
-  };
-
-  /**
-   * 删除用户
-   */
-  const handleDelete = (record: UserVO) => {
-    modal.confirm({
-      title: '确认删除',
-      content: `确定要删除用户 "${record.username || record.phone}" 吗？`,
-      okText: '确认',
-      cancelText: '取消',
-      onOk: async () => {
-        try {
-          const response = await deleteUser(record.userId);
-          if (response.code === '200') {
-            message.success('删除成功');
-            actionRef.current?.reload();
-          }
-        } catch (error) {
-          modal.error({
-            title: '删除失败',
-          });
-        }
-      },
-    });
-  };
-
-  /**
-   * 重置密码
-   */
-  const handleResetPassword = (record: UserVO) => {
-    setSelectedUser(record);
-    setPasswordModalVisible(true);
-  };
-
-  /**
-   * 确认重置密码
-   */
-  const confirmResetPassword = async (newPassword: string) => {
-    if (!selectedUser) return;
-
-    try {
-      const response = await resetUserPassword(selectedUser.userId, newPassword);
-      if (response.code === '200') {
-        message.success('密码重置成功');
-        setPasswordModalVisible(false);
-        setSelectedUser(null);
-      }
-    } catch (error) {
-      modal.error({
-        title: '密码重置失败',
-      });
-    }
-  };
-
-  /**
-   * 冻结用户
-   */
-  const handleFreeze = (record: UserVO) => {
-    modal.confirm({
-      title: '确认冻结',
-      content: `确定要冻结用户 "${record.username || record.phone}" 吗？冻结后用户将无法登录。`,
-      okText: '确认',
-      cancelText: '取消',
-      onOk: async () => {
-        try {
-          const response = await freezeUser(record.userId, true);
-          if (response.code === '200') {
-            message.success('冻结成功');
-            actionRef.current?.reload();
-          }
-        } catch (error) {
-          modal.error({
-            title: '冻结失败',
-          });
-        }
-      },
-    });
-  };
-
-  /**
-   * 解冻用户
-   */
-  const handleUnfreeze = (record: UserVO) => {
-    modal.confirm({
-      title: '确认解冻',
-      content: `确定要解冻用户 "${record.username || record.phone}" 吗？`,
-      okText: '确认',
-      cancelText: '取消',
-      onOk: async () => {
-        try {
-          const response = await freezeUser(record.userId, false);
-          if (response.code === '200') {
-            message.success('解冻成功');
-            actionRef.current?.reload();
-          }
-        } catch (error) {
-          modal.error({
-            title: '解冻失败',
-          });
-        }
-      },
-    });
   };
 
   /**
@@ -384,51 +250,18 @@ const UserList: React.FC = () => {
           reload: true,
           setting: true,
         }}
-        toolBarRender={() => [
-          <AccessBtnAuth authority={AdminAccess.USER_LIST_CREATE} key="create">
-            <Button key="create" type="primary" icon={<PlusOutlined/>} onClick={handleCreate}>
-              新建用户
-            </Button>
-          </AccessBtnAuth>,
-        ]}
       />
       <Modal
-        title={viewingRecord ? '用户详情' : '新建用户'}
+        title="用户详情"
         open={modalVisible}
         onCancel={handleCancel}
         width={600}
         destroyOnHidden
         cancelText="关闭"
         centered={false}
-        footer={viewingRecord ? null : (
-          <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
-            <Button onClick={handleCancel}>取消</Button>
-            <Button type="primary">提交</Button>
-          </Space>
-        )}
+        footer={null}
       >
-        {modalVisible && <UserForm ref={formRef} initialValues={viewingRecord || undefined} readOnly={!!viewingRecord} />}
-      </Modal>
-
-      <Modal
-        title="重置密码"
-        open={passwordModalVisible}
-        onOk={() => {
-          const newPassword = prompt('请输入新密码：');
-          if (newPassword) {
-            confirmResetPassword(newPassword);
-          }
-        }}
-        onCancel={() => {
-          setPasswordModalVisible(false);
-          setSelectedUser(null);
-        }}
-        width={400}
-      >
-        <div>确定要重置用户 "{selectedUser?.username || selectedUser?.phone}" 的密码吗？</div>
-        <div style={{marginTop: 10, color: '#8c8c8c', fontSize: '12px'}}>
-          点击确认后，请在弹出的输入框中输入新密码。
-        </div>
+        {modalVisible && <UserForm initialValues={viewingRecord || undefined} readOnly />}
       </Modal>
 
       <UserAuthAuditModal
